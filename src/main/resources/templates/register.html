@@ -1,0 +1,30 @@
+<!DOCTYPE>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>アカウント登録</title>
+</head>
+
+<body>
+	<h2>アカウント登録</h2>
+
+	<form th:action="@{/register_send}" method="post">
+		<div> <!-- divはセットって意味 -->
+			<label>ユーザー名</label>
+			<input type="text" name="username" required> <!-- リクワイアドで空だと送信できないという機能  -->
+		</div>
+		<div>
+			<label>パスワード</label>
+			<input type="password" name="password" required>
+		</div>
+		<button type="submit">登録</button>
+	</form>
+	
+	
+	<p>
+		<a th:href="@{/login_place}">ログインはこちら</a>
+	</p>
+</body>
+</html>
+<!-- -->

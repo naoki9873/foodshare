@@ -1,0 +1,18 @@
+package com.example.chatapp;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class ChatappApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ChatappApplication.class, args);
+		System.out.println("ここはメインです");
+		System.out.println("ここはメインです");
+		System.out.println("ここはメインです");
+		System.out.println("ここはメインです");
+
+	}
+
+}

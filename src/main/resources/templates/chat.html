@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>
+		チェット画面
+	</title>
+
+</head>
+<body>
+<h2>チャット画面</h2>
+<p>ログイン中：<span th:text="${loginUser.username}"></span></p>
+<hr>
+<div th:each="msg : ${messages}">
+	<div>
+		<p>
+			①<b th:text="${msg.user.username}"></b>
+			②<span th:text="${msg.content}"></span>
+			③<small th:text="${#temporals.format(msg.time, 'HH:mm')}"></small>
+		</p>
+	</div>
+</div>
+<hr>
+
+
+<form action="/chat_send" method="post">
+	④<input type="text" name="message" placeholder="メッセージ">
+	⑤<button type="submit">送信</button>
+
+</form>
+</body>
+
+
+
+</html>
