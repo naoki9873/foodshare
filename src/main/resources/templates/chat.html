@@ -1,34 +1,197 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-	<title>
-		チェット画面
-	</title>
+	<meta charset="UTF-8">
+	<title>タイムライン</title>
 
+	<style>
+		body {
+			background: #f5f5f5;
+			font-family: sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		h2 {
+			text-align: center;
+			background: white;
+			margin: 0;
+			padding: 16px;
+			border-bottom: 1px solid #ddd;
+		}
+
+		.login-user {
+			text-align: center;
+			font-size: 14px;
+			margin: 10px 0;
+			color: #666;
+		}
+
+		.error {
+			color: red;
+			text-align: center;
+			margin: 10px 0;
+		}
+
+		.post-form {
+			max-width: 600px;
+			margin: 20px auto;
+			background: white;
+			padding: 12px;
+			border-radius: 8px;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.post-form textarea {
+			resize: vertical;
+			padding: 8px;
+		}
+
+		.post-form button {
+			padding: 8px;
+			border: none;
+			background: #4CAF50;
+			color: white;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.timeline {
+			max-width: 600px;
+			margin: 0 auto 40px;
+		}
+
+		.post {
+			background: white;
+			padding: 12px;
+			margin-bottom: 16px;
+			border-radius: 8px;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.post-header {
+			display: flex;
+			justify-content: space-between;
+			font-size: 13px;
+			color: #555;
+			margin-bottom: 6px;
+		}
+
+		.username {
+			font-weight: bold;
+		}
+
+		.edit-link {
+			font-size: 12px;
+			margin-left: 8px;
+			color: #2196F3;
+			text-decoration: none;
+		}
+
+		.edit-link:hover {
+			text-decoration: underline;
+		}
+
+		.post-image {
+			margin-top: 8px;
+			max-width: 100%;
+			border-radius: 6px;
+		}
+
+		.comments {
+			margin-top: 8px;
+			padding-left: 8px;
+			border-left: 2px solid #eee;
+		}
+
+		.comment-form {
+			margin-top: 6px;
+			display: flex;
+			gap: 4px;
+		}
+
+		.comment-form input {
+			flex: 1;
+			font-size: 12px;
+		}
+	</style>
 </head>
+
 <body>
-<h2>チャット画面</h2>
-<p>ログイン中：<span th:text="${loginUser.username}"></span></p>
-<hr>
-<div th:each="msg : ${messages}">
-	<div>
-		<p>
-			①<b th:text="${msg.user.username}"></b>
-			②<span th:text="${msg.content}"></span>
-			③<small th:text="${#temporals.format(msg.time, 'HH:mm')}"></small>
-		</p>
+	
+	
+	<h3>参加グループ</h3>
+
+<ul>
+  <li th:each="gm : ${groups}">
+    <a th:href="@{/groups/{id}/chat(id=${gm.group.id})}"
+       th:text="${gm.group.name}">
+    </a>
+  </li>
+</ul>
+
+
+	<h2>タイムライン</h2>
+
+	<div class="login-user">
+		ログイン中：<span th:text="${loginUser.username}"></span>
 	</div>
-</div>
-<hr>
 
+	<p class="error" th:if="${error}" th:text="${error}"></p>
 
-<form action="/chat_send" method="post">
-	④<input type="text" name="message" placeholder="メッセージ">
-	⑤<button type="submit">送信</button>
+	<form action="/chat_send" method="post" enctype="multipart/form-data" class="post-form">
 
-</form>
+		<textarea name="message" rows="3" placeholder="いまどうしてる？"></textarea>
+
+		<input type="file" name="image" accept="image/*">
+
+		<button type="submit">投稿</button>
+	</form>
+
+	<div class="timeline">
+		<div class="post" th:each="msg : ${messages}">
+
+			<div class="post-header">
+				<span class="username" th:text="${msg.user.username}"></span>
+
+				<div>
+					<span th:text="${#temporals.format(msg.time, 'HH:mm')}"></span>
+
+					<!-- ★ 自分の投稿だけ編集表示 -->
+					<a th:href="@{/edit(messageId=${msg.id})}" class="edit-link">
+						編集
+					</a>
+				</div>
+			</div>
+
+			<div th:if="${msg.content != null}" th:text="${msg.content}"></div>
+
+			<img th:if="${msg.imagePath != null}" th:src="${msg.imagePath}" class="post-image">
+
+			<!-- コメント一覧 -->
+			<div class="comments">
+				<div th:each="c : ${msg.comments}">
+					<small>
+						<b th:text="${c.user.username}"></b>
+						<span th:text="${c.content}"></span>
+					</small>
+				</div>
+			</div>
+
+			<!-- コメント投稿フォーム -->
+			<form action="/comment_send" method="post" class="comment-form">
+				<input type="hidden" name="messageId" th:value="${msg.id}">
+				<input type="text" name="content" placeholder="コメントを書く">
+				<button type="submit">送信</button>
+			</form>
+
+		</div>
+	</div>
+
 </body>
-
-
 
 </html>

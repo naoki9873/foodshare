@@ -1,5 +1,6 @@
 package com.example.chatapp.controller;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;//辞書的な役割をする（キーを値で送る）
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +16,12 @@ import jakarta.servlet.http.HttpSession; //セッションが使用可能にな�
 public class AccountController {
 
 	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder passwordEncoder ; 
+	
 
-	public AccountController(UserRepository userRepository) {
+	public AccountController(UserRepository userRepository , BCryptPasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.passwordEncoder=passwordEncoder;
 	}
 
 	@GetMapping("/register")
@@ -33,7 +37,7 @@ public class AccountController {
 
 		User user = new User();
 		user.setUsername(username);
-		user.setPassword(password);//ここでパスワードをハッシュ化する！
+		user.setPassword(passwordEncoder.encode(password));//ここでパスワードをハッシュ化する！
 		System.out.println("このタイミングでパスワードをハッシュ化しました。");
 
 		System.out.println("ここは、ポストマッピング（レジスタ）です。ログイン画面に再アクセスします。");
@@ -50,19 +54,39 @@ public class AccountController {
 
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@PostMapping("/login_send") //login_placeのHTMLからリクエストされる。それがDBと正しいか見分けるメソッド
 	public String login_send(
 			@RequestParam String username,
 			@RequestParam String password,
 			Model model,
-			HttpSession session //ログイン成功時にセッション発動する
+			HttpSession session //ロsグイン成功時にセッション発動する
 	) {
 
-		User user = userRepository.findByUsernameAndPassword(username, password); //「DBに保存されている user の中から、username と password が両方一致する1件を探して」
+		User user = userRepository.findByUsername(username); //「DBに保存されている user の中から、username と password が両方一致する1件を探して」
 
 		if (user == null) {
-			model.addAttribute("error", "ユーザー名かパスワードが違う"); //モデル.アドアトリビュートで「キーと値」になる
+			model.addAttribute("error", "ユーザー名が違います。"); //モデル.アドアトリビュートで「キーと値」になる
 			System.out.println("ログイン失敗");
+			return "login_place";
+		}
+		
+		if(!passwordEncoder.matches(password, user.getPassword())) {
+			model.addAttribute("error" , "パスワードが違います。");
 			return "login_place";
 		}
 
